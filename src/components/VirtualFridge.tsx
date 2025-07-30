@@ -2,6 +2,28 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Clock, Star, Leaf, Flame, Heart, Share2, BookOpen, Users, X, ArrowLeft } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 
+// Import all recipe images
+import palakPaneerImg from '../palak paneer.557Z.png';
+import butterChickenImg from '../Butter Chicken (Murgh Makhani).825Z.png';
+import chanaMasalaImg from '../Chana Masala (Spiced Chickpea Curry).301Z.png';
+import alooGobiImg from '../Aloo Gobi.641Z.png';
+import dalTadkaImg from '../Dal Tadka.272Z.png';
+import chickenBiryaniImg from '../Chicken Biryani.649Z.png';
+import masalaDosaImg from '../Masala Dosa.839Z.png';
+import samosaImg from '../Samosa.063Z.png';
+import pavBhajiImg from '../Pav Bhaji.589Z.png';
+import roganJoshImg from '../Rogan Josh.538Z.png';
+import lemonRiceImg from '../Lemon Rice (Chitranna).208Z.png';
+import mangoLassiImg from '../Mango Lassi.144Z.png';
+import chickenKormaImg from '../Chicken Korma.985Z.png';
+import onionPakoraImg from '../Onion Pakora (Bhaji).957Z.png';
+import saagAlooImg from '../Saag Aloo.564Z.png';
+import tandooriChickenImg from '../Tandoori Chicken.750Z.png';
+import keemaMatarImg from '../Keema Matar.472Z.png';
+import kheerImg from '../Kheer (Indian Rice Pudding).612Z.png';
+import bhindiMasalaImg from '../Bhindi Masala.306Z.png';
+import paniPuriImg from '../Pani Puri (Golgappa).141Z.png';
+
 interface Recipe {
   id: number;
   title: string;
@@ -46,7 +68,7 @@ const VirtualFridge: React.FC = () => {
     {
       id: 1,
       title: "Palak Paneer",
-      image: "/src/palak paneer.557Z.png",
+      image: palakPaneerImg,
       shortDescription: "A classic North Indian dish where soft paneer cubes are simmered in a creamy, mildly spiced spinach gravy.",
       instructions: [
         "Blanch 250g of fresh spinach in boiling water for 2 minutes, then immediately transfer to ice-cold water.",
@@ -71,7 +93,7 @@ const VirtualFridge: React.FC = () => {
     {
       id: 2,
       title: "Butter Chicken (Murgh Makhani)",
-      image: "/src/Butter Chicken (Murgh Makhani).825Z.png",
+      image: butterChickenImg,
       shortDescription: "The world-famous, decadent, and creamy tomato-based curry with tender tandoori chicken pieces.",
       instructions: [
         "Marination: In a bowl, mix 500g boneless chicken pieces with 1/2 cup yogurt, 1 tbsp ginger-garlic paste, 1 tsp red chili powder, 1 tsp tandoori masala, and salt. Marinate for at least 1 hour.",
@@ -94,7 +116,7 @@ const VirtualFridge: React.FC = () => {
     {
       id: 3,
       title: "Chana Masala (Spiced Chickpea Curry)",
-      image: "/src/Chana Masala (Spiced Chickpea Curry).301Z.png",
+      image: chanaMasalaImg,
       shortDescription: "A popular and protein-packed vegetarian curry made with chickpeas in a spicy onion-tomato gravy.",
       instructions: [
         "Heat 2 tbsp of oil in a pressure cooker or pot. Add 1 tsp cumin seeds, 1 bay leaf, and a pinch of asafoetida.",
@@ -118,7 +140,7 @@ const VirtualFridge: React.FC = () => {
     {
       id: 4,
       title: "Aloo Gobi",
-      image: "/src/Aloo Gobi.641Z.png",
+      image: alooGobiImg,
       shortDescription: "A comforting and simple dry curry made with potatoes (aloo) and cauliflower (gobi).",
       instructions: [
         "Heat 3 tbsp of oil in a large pan or kadai.",
@@ -142,7 +164,7 @@ const VirtualFridge: React.FC = () => {
     {
       id: 5,
       title: "Dal Tadka",
-      image: "/src/Dal Tadka.272Z.png",
+      image: dalTadkaImg,
       shortDescription: "A comforting and flavorful yellow lentil curry tempered with ghee and spices.",
       instructions: [
         "Wash and soak 1 cup of toor dal (pigeon pea lentils) for 30 minutes.",
@@ -166,7 +188,7 @@ const VirtualFridge: React.FC = () => {
     {
       id: 6,
       title: "Chicken Biryani",
-      image: "/src/Chicken Biryani.649Z.png",
+      image: chickenBiryaniImg,
       shortDescription: "A royal and aromatic layered rice dish made with marinated chicken, fragrant spices, and long-grain basmati rice.",
       instructions: [
         "Marinate Chicken: Mix 500g chicken pieces with 1 cup yogurt, 2 tbsp ginger-garlic paste, 1 tsp turmeric, 2 tsp red chili powder, 2 tbsp biryani masala, juice of 1 lemon, a handful of chopped mint and cilantro. Marinate for 2 hours.",
@@ -190,7 +212,7 @@ const VirtualFridge: React.FC = () => {
     {
       id: 7,
       title: "Masala Dosa",
-      image: "/src/Masala Dosa.839Z.png",
+      image: masalaDosaImg,
       shortDescription: "A famous South Indian crispy crepe made from fermented rice and lentil batter, filled with a savory potato stuffing.",
       instructions: [
         "Batter: Use a store-bought dosa batter or make your own by soaking and grinding rice and urad dal. The batter should be fermented overnight.",
@@ -214,7 +236,7 @@ const VirtualFridge: React.FC = () => {
     {
       id: 8,
       title: "Samosa",
-      image: "/src/Samosa.063Z.png",
+      image: samosaImg,
       shortDescription: "The quintessential Indian snack - a deep-fried pastry with a savory filling of spiced potatoes and peas.",
       instructions: [
         "Dough: Mix 2 cups of all-purpose flour, 1/2 tsp carom seeds (ajwain), salt, and 4 tbsp of oil until it resembles breadcrumbs. Gradually add cold water to form a stiff dough. Cover and rest for 30 minutes.",
@@ -238,7 +260,7 @@ const VirtualFridge: React.FC = () => {
     {
       id: 9,
       title: "Pav Bhaji",
-      image: "/src/Pav Bhaji.589Z.png",
+      image: pavBhajiImg,
       shortDescription: "A flavorful mash of mixed vegetables cooked in a special blend of spices and served with soft, buttered bread rolls. A Mumbai street food favorite.",
       instructions: [
         "Boil 2 potatoes, 1 cup cauliflower florets, 1/2 cup green peas, and 1 chopped carrot until very soft. Mash them together and set aside.",
@@ -262,7 +284,7 @@ const VirtualFridge: React.FC = () => {
     {
       id: 10,
       title: "Rogan Josh",
-      image: "/src/Rogan Josh.538Z.png",
+      image: roganJoshImg,
       shortDescription: "A signature aromatic lamb curry from Kashmir, known for its brilliant red color and robust flavor from fennel and ginger.",
       instructions: [
         "Heat 4 tbsp of mustard oil in a heavy-bottomed pot until it smokes lightly. Let it cool slightly.",
@@ -286,7 +308,7 @@ const VirtualFridge: React.FC = () => {
     {
       id: 21,
       title: "Lemon Rice (Chitranna)",
-      image: "/src/Lemon Rice (Chitranna).208Z.png",
+      image: lemonRiceImg,
       shortDescription: "A tangy, fragrant, and light South Indian rice dish flavored with lemon juice, tempering spices, and peanuts.",
       instructions: [
         "You'll need 3 cups of cooked and cooled rice. Ensure the grains are separate.",
@@ -310,7 +332,7 @@ const VirtualFridge: React.FC = () => {
     {
       id: 22,
       title: "Mango Lassi",
-      image: "/src/Mango Lassi.144Z.png",
+      image: mangoLassiImg,
       shortDescription: "A creamy and refreshing yogurt-based smoothie made with sweet mango pulp, a quintessential Indian summer drink.",
       instructions: [
         "Peel and chop 2 ripe, sweet mangoes (or use 1 cup of canned mango pulp).",
@@ -334,7 +356,7 @@ const VirtualFridge: React.FC = () => {
     {
       id: 23,
       title: "Chicken Korma",
-      image: "/src/Chicken Korma.985Z.png",
+      image: chickenKormaImg,
       shortDescription: "A mild yet rich chicken curry cooked in a delectable white gravy made from yogurt, nuts, and aromatic spices.",
       instructions: [
         "Marinate 500g of chicken pieces with 1 tbsp ginger-garlic paste and salt for 30 minutes.",
@@ -358,7 +380,7 @@ const VirtualFridge: React.FC = () => {
     {
       id: 24,
       title: "Onion Pakora (Bhaji)",
-      image: "/src/Onion Pakora (Bhaji).957Z.png",
+      image: onionPakoraImg,
       shortDescription: "Crispy fritters made with onions and gram flour batter. The perfect crunchy, savory snack, especially on a rainy day.",
       instructions: [
         "Thinly slice 2 large onions. Place them in a large bowl.",
@@ -382,7 +404,7 @@ const VirtualFridge: React.FC = () => {
     {
       id: 25,
       title: "Saag Aloo",
-      image: "/src/Saag Aloo.564Z.png",
+      image: saagAlooImg,
       shortDescription: "A simple yet delicious Punjabi curry combining tender potatoes with a flavorful blend of puréed leafy greens like spinach and mustard greens.",
       instructions: [
         "Wash and chop 500g of mixed greens (spinach is primary, add mustard greens or fenugreek for more flavor).",
@@ -406,7 +428,7 @@ const VirtualFridge: React.FC = () => {
     {
       id: 26,
       title: "Tandoori Chicken",
-      image: "/src/Tandoori Chicken.750Z.png",
+      image: tandooriChickenImg,
       shortDescription: "Chicken marinated in yogurt and a fiery spice blend, then roasted in a tandoor (or oven/grill) to smoky perfection.",
       instructions: [
         "Take 4 chicken leg quarters and make deep gashes in the meat.",
@@ -430,7 +452,7 @@ const VirtualFridge: React.FC = () => {
     {
       id: 27,
       title: "Keema Matar",
-      image: "/src/Keema Matar.472Z.png",
+      image: keemaMatarImg,
       shortDescription: "A hearty and flavorful dish of minced meat (usually lamb) and green peas cooked in a spiced onion-tomato gravy.",
       instructions: [
         "Heat 3 tbsp of oil in a pressure cooker or pot. Add whole spices (bay leaf, cinnamon, cloves).",
@@ -454,7 +476,7 @@ const VirtualFridge: React.FC = () => {
     {
       id: 28,
       title: "Kheer (Indian Rice Pudding)",
-      image: "/src/Kheer (Indian Rice Pudding).612Z.png",
+      image: kheerImg,
       shortDescription: "A creamy, slow-cooked Indian rice pudding made with milk, rice, sugar, and flavored with cardamom, saffron, and nuts.",
       instructions: [
         "Wash and soak 1/4 cup of basmati rice for 30 minutes. Drain well.",
@@ -478,7 +500,7 @@ const VirtualFridge: React.FC = () => {
     {
       id: 29,
       title: "Bhindi Masala",
-      image: "/src/Bhindi Masala.306Z.png",
+      image: bhindiMasalaImg,
       shortDescription: "A popular and flavorful dry curry made with okra (ladies' finger), onions, tomatoes, and a blend of aromatic spices.",
       instructions: [
         "Wash and thoroughly pat dry 500g of okra (bhindi). This is crucial to prevent sliminess. Trim the ends and chop into 1-inch pieces.",
@@ -502,7 +524,7 @@ const VirtualFridge: React.FC = () => {
     {
       id: 30,
       title: "Pani Puri (Golgappa)",
-      image: "/src/Pani Puri (Golgappa).141Z.png",
+      image: paniPuriImg,
       shortDescription: "A popular street-food snack consisting of a hollow, crispy fried ball (puri) filled with a mixture of flavored water (pani), chutney, potato, and chickpeas.",
       instructions: [
         "Prepare Filling: In a bowl, mash 2 boiled potatoes. Add 1/2 cup boiled chickpeas, 1 finely chopped small onion, and salt. Mix well.",
