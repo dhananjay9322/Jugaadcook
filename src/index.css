@@ -1,0 +1,411 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background-primary: #FDF8F0;
+  --text-primary: #2F2F2F;
+  --brand-accent-orange: #F9A826;
+  --brand-accent-green: #2A9D8F;
+  --background-light-green: rgba(42, 157, 143, 0.1);
+  --text-muted: #6c757d;
+  --font-heading: 'Poppins', sans-serif;
+  --font-body: 'Nunito Sans', sans-serif;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-body);
+  color: var(--text-primary);
+  background-color: var(--background-primary);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  line-height: 1.2;
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-float-delayed {
+  animation: float 6s ease-in-out infinite;
+  animation-delay: 2s;
+}
+
+.animate-float-delayed-2 {
+  animation: float 6s ease-in-out infinite;
+  animation-delay: 4s;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+.animate-slide-up {
+  animation: slideUp 0.8s ease-out forwards;
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+@keyframes slideUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 1s ease-out forwards;
+  opacity: 0;
+}
+
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.5s ease-out forwards;
+  opacity: 0;
+  transform: scale(0.9);
+}
+
+@keyframes scaleIn {
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.hover-lift {
+  transition: all 0.3s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+.ingredient-pill {
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.ingredient-pill:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.ingredient-pill.active {
+  background-color: var(--brand-accent-green);
+  color: white;
+  border-color: var(--brand-accent-green);
+}
+
+.recipe-card {
+  transition: all 0.3s ease;
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.recipe-card.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.recipe-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+.scroll-shadow {
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Custom Jugaad Animation Classes */
+@keyframes floatIngredient1 {
+  0% {
+    transform: translate(-100px, -50px) scale(0.5);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  80% {
+    transform: translate(-20px, -10px) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-20px, -10px) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes floatIngredient2 {
+  0% {
+    transform: translate(100px, -50px) scale(0.5);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  80% {
+    transform: translate(20px, -10px) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(20px, -10px) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes floatIngredient3 {
+  0% {
+    transform: translate(-100px, 50px) scale(0.5);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  80% {
+    transform: translate(-20px, 10px) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-20px, 10px) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes floatIngredient4 {
+  0% {
+    transform: translate(100px, 50px) scale(0.5);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  80% {
+    transform: translate(20px, 10px) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(20px, 10px) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes floatIngredient5 {
+  0% {
+    transform: translate(-80px, 0px) scale(0.5);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  80% {
+    transform: translate(-10px, 0px) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-10px, 0px) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes floatIngredient6 {
+  0% {
+    transform: translate(80px, 0px) scale(0.5);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  80% {
+    transform: translate(10px, 0px) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(10px, 0px) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes floatIngredient7 {
+  0% {
+    transform: translate(0px, -80px) scale(0.5);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  80% {
+    transform: translate(0px, -10px) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(0px, -10px) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes floatIngredient8 {
+  0% {
+    transform: translate(0px, 80px) scale(0.5);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  80% {
+    transform: translate(0px, 10px) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(0px, 10px) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes spinSlow {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+@keyframes sparkle1 {
+  0%, 100% {
+    opacity: 0;
+    transform: scale(0);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes sparkle2 {
+  0%, 100% {
+    opacity: 0;
+    transform: scale(0);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes sparkle3 {
+  0%, 100% {
+    opacity: 0;
+    transform: scale(0);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes sparkle4 {
+  0%, 100% {
+    opacity: 0;
+    transform: scale(0);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-float-ingredient-1 {
+  animation: floatIngredient1 6s ease-out forwards;
+}
+
+.animate-float-ingredient-2 {
+  animation: floatIngredient2 6s ease-out forwards;
+}
+
+.animate-float-ingredient-3 {
+  animation: floatIngredient3 6s ease-out forwards;
+}
+
+.animate-float-ingredient-4 {
+  animation: floatIngredient4 6s ease-out forwards;
+}
+
+.animate-float-ingredient-5 {
+  animation: floatIngredient5 6s ease-out forwards;
+}
+
+.animate-float-ingredient-6 {
+  animation: floatIngredient6 6s ease-out forwards;
+}
+
+.animate-float-ingredient-7 {
+  animation: floatIngredient7 6s ease-out forwards;
+}
+
+.animate-float-ingredient-8 {
+  animation: floatIngredient8 6s ease-out forwards;
+}
+
+.animate-spin-slow {
+  animation: spinSlow 20s linear infinite;
+}
+
+.animate-sparkle-1 {
+  animation: sparkle1 3s ease-in-out infinite;
+  animation-delay: 1s;
+}
+
+.animate-sparkle-2 {
+  animation: sparkle2 3s ease-in-out infinite;
+  animation-delay: 2s;
+}
+
+.animate-sparkle-3 {
+  animation: sparkle3 3s ease-in-out infinite;
+  animation-delay: 3s;
+}
+
+.animate-sparkle-4 {
+  animation: sparkle4 3s ease-in-out infinite;
+  animation-delay: 4s;
+}
+
+@media (max-width: 768px) {
+  .animate-float, .animate-float-delayed, .animate-float-delayed-2 {
+    animation: none;
+  }
+  
+  .animate-float-ingredient-1,
+  .animate-float-ingredient-2,
+  .animate-float-ingredient-3,
+  .animate-float-ingredient-4,
+  .animate-float-ingredient-5,
+  .animate-float-ingredient-6,
+  .animate-float-ingredient-7,
+  .animate-float-ingredient-8 {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
