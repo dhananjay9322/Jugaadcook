@@ -297,6 +297,31 @@ const Chatbot: React.FC = () => {
     },
     {
       id: 12,
+      title: 'Khichdi',
+      image: 'https://images.pexels.com/photos/5409015/pexels-photo-5409015.jpeg?auto=compress&cs=tinysrgb&w=400',
+      time: '30 Mins',
+      difficulty: 'Easy',
+      ingredients: ['Rice', 'Lentils', 'Onion', 'Ginger', 'Garlic', 'Turmeric', 'Cumin', 'Ghee'],
+      dietary: ['Veg', 'Jain'],
+      shortDescription: 'A comforting one-pot meal made with rice and lentils, perfect for digestion and comfort food.',
+      instructions: [
+        'Wash 1 cup of rice and 1/2 cup of moong dal together until water runs clear.',
+        'Heat 2 tbsp of ghee in a pressure cooker or heavy-bottomed pot.',
+        'Add 1 tsp of cumin seeds and let them crackle.',
+        'Add 1 finely chopped onion and sauté until translucent.',
+        'Add 1 tbsp ginger-garlic paste and cook for a minute.',
+        'Add 1/2 tsp turmeric powder and stir for 30 seconds.',
+        'Add the washed rice and dal mixture.',
+        'Add 3 cups of water and salt to taste.',
+        'If using pressure cooker, cook for 2 whistles. If using pot, cover and simmer for 20-25 minutes.',
+        'Let it rest for 5 minutes before serving.',
+        'Garnish with fresh cilantro and serve hot with pickle or yogurt.'
+      ],
+      servings: 4,
+      cuisine: 'North Indian'
+    },
+    {
+      id: 13,
       title: 'Chicken Biryani',
       image: 'https://images.pexels.com/photos/12737652/pexels-photo-12737652.jpeg?auto=compress&cs=tinysrgb&w=400',
       time: '60 Mins',
@@ -384,7 +409,7 @@ const Chatbot: React.FC = () => {
       })[0];
     }
     
-    // Try matching common variations
+    // Try matching common variations and spelling variants
     const variations: { [key: string]: string } = {
       'paneer masala': 'Paneer Butter Masala',
       'rajma chawal': 'Chana Masala (Spiced Chickpea Curry)',
@@ -398,7 +423,14 @@ const Chatbot: React.FC = () => {
       'tomato rice': 'Tomato Rice',
       'spinach rice': 'Spinach Rice',
       'paneer fried rice': 'Paneer Fried Rice',
-      'garlic rice': 'Garlic Rice'
+      'garlic rice': 'Garlic Rice',
+      // Add spelling variants for khichdi
+      'khichadi': 'Khichdi',
+      'kichadi': 'Khichdi',
+      'khichari': 'Khichdi',
+      'kichari': 'Khichdi',
+      'khichdi': 'Khichdi',
+      'kichdi': 'Khichdi'
     };
     
     const variationMatch = variations[lowerRecipeName];
@@ -581,17 +613,52 @@ const Chatbot: React.FC = () => {
           
           setMessages(prev => [...prev, botMessage]);
         } else {
-          // Recipe not found - provide friendly fallback
-          const fallbackResponse = `I couldn't find *${requestedRecipe}* in my recipe list. Can you try rephrasing or telling me ingredients instead? I can still help you cook something delicious!`;
-          
-          const botMessage: Message = {
-            id: (Date.now() + 1).toString(),
-            text: fallbackResponse,
-            isUser: false,
-            timestamp: new Date()
-          };
-          
-          setMessages(prev => [...prev, botMessage]);
+          // Recipe not found - automatically use Gemini API
+          try {
+            const geminiPrompt = `Give me a full Indian recipe for '${requestedRecipe}'. Include:
+1. List of ingredients with quantities
+2. Step-by-step cooking instructions
+3. Total cooking time
+4. Helpful cooking tips
+Format it clearly with emojis and section headers like this:
+
+🍛 **[Dish Name]**
+📝 **Ingredients:**
+- [list ingredients with quantities]
+
+👨‍🍳 **Instructions:**
+1. [step 1]
+2. [step 2]
+...
+
+⏱️ **Time:** [cooking time]
+💡 **Tip:** [helpful cooking tip]`;
+
+            const result = await model.generateContent(geminiPrompt);
+            const response = await result.response;
+            const geminiRecipe = response.text();
+            
+            const botMessage: Message = {
+              id: (Date.now() + 1).toString(),
+              text: geminiRecipe,
+              isUser: false,
+              timestamp: new Date()
+            };
+            
+            setMessages(prev => [...prev, botMessage]);
+          } catch (error) {
+            console.error('Gemini API error:', error);
+            const errorResponse = `I couldn't find that recipe in my list and something went wrong while fetching from my chef partner. Please try again in a moment.`;
+            
+            const botMessage: Message = {
+              id: (Date.now() + 1).toString(),
+              text: errorResponse,
+              isUser: false,
+              timestamp: new Date()
+            };
+            
+            setMessages(prev => [...prev, botMessage]);
+          }
         }
       } else {
         // Extract ingredients from user input
