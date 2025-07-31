@@ -112,7 +112,7 @@ const Chatbot: React.FC = () => {
   ];
 
   // Initialize Gemini AI
-  const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY || '');
+  const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY || 'AIzaSyDeLpITbB9zaPCvo8f6A_R6J208k6ukuSs');
   const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' });
 
   const scrollToBottom = () => {
