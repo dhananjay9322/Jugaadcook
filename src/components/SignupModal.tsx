@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { X, User, Mail, Lock, Eye, EyeOff } from 'lucide-react';
-import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
 
 interface SignupModalProps {
@@ -24,7 +23,6 @@ interface FormErrors {
 }
 
 const SignupModal: React.FC<SignupModalProps> = ({ isOpen, onClose, onSwitchToLogin }) => {
-  const { t } = useLanguage();
   const { signup } = useAuth();
   const [formData, setFormData] = useState<FormData>({
     fullName: '',
@@ -42,28 +40,28 @@ const SignupModal: React.FC<SignupModalProps> = ({ isOpen, onClose, onSwitchToLo
 
     // Full Name validation
     if (!formData.fullName.trim()) {
-      newErrors.fullName = t('signup.validation.required');
+      newErrors.fullName = 'This field is required';
     }
 
     // Email validation
     if (!formData.email.trim()) {
-      newErrors.email = t('signup.validation.required');
+      newErrors.email = 'This field is required';
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = t('signup.validation.email');
+      newErrors.email = 'Please enter a valid email address';
     }
 
     // Password validation
     if (!formData.password) {
-      newErrors.password = t('signup.validation.required');
+      newErrors.password = 'This field is required';
     } else if (formData.password.length < 6) {
-      newErrors.password = t('signup.validation.passwordLength');
+      newErrors.password = 'Password must be at least 6 characters';
     }
 
     // Confirm Password validation
     if (!formData.confirmPassword) {
-      newErrors.confirmPassword = t('signup.validation.required');
+      newErrors.confirmPassword = 'This field is required';
     } else if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = t('signup.validation.passwordMatch');
+      newErrors.confirmPassword = 'Passwords do not match';
     }
 
     setErrors(newErrors);
@@ -137,7 +135,7 @@ const SignupModal: React.FC<SignupModalProps> = ({ isOpen, onClose, onSwitchToLo
           {/* Modal Header */}
           <div className="flex items-center justify-between p-6 border-b border-gray-200">
             <h2 className="text-2xl font-bold text-gray-900">
-              {t('signup.title')}
+              Sign Up
             </h2>
             <button
               onClick={onClose}
@@ -153,7 +151,7 @@ const SignupModal: React.FC<SignupModalProps> = ({ isOpen, onClose, onSwitchToLo
               {/* Full Name */}
               <div>
                 <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-2">
-                  {t('signup.fullName')}
+                  Full Name
                 </label>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -165,7 +163,7 @@ const SignupModal: React.FC<SignupModalProps> = ({ isOpen, onClose, onSwitchToLo
                     className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors ${
                       errors.fullName ? 'border-red-500' : 'border-gray-300'
                     }`}
-                    placeholder={t('signup.fullName')}
+                    placeholder="Full Name"
                   />
                 </div>
                 {errors.fullName && (
@@ -176,7 +174,7 @@ const SignupModal: React.FC<SignupModalProps> = ({ isOpen, onClose, onSwitchToLo
               {/* Email */}
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                  {t('signup.email')}
+                  Email
                 </label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -188,7 +186,7 @@ const SignupModal: React.FC<SignupModalProps> = ({ isOpen, onClose, onSwitchToLo
                     className={`w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors ${
                       errors.email ? 'border-red-500' : 'border-gray-300'
                     }`}
-                    placeholder={t('signup.email')}
+                    placeholder="Email"
                   />
                 </div>
                 {errors.email && (
@@ -199,7 +197,7 @@ const SignupModal: React.FC<SignupModalProps> = ({ isOpen, onClose, onSwitchToLo
               {/* Password */}
               <div>
                 <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-                  {t('signup.password')}
+                  Password
                 </label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -211,7 +209,7 @@ const SignupModal: React.FC<SignupModalProps> = ({ isOpen, onClose, onSwitchToLo
                     className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors ${
                       errors.password ? 'border-red-500' : 'border-gray-300'
                     }`}
-                    placeholder={t('signup.password')}
+                    placeholder="Password"
                   />
                   <button
                     type="button"
@@ -229,7 +227,7 @@ const SignupModal: React.FC<SignupModalProps> = ({ isOpen, onClose, onSwitchToLo
               {/* Confirm Password */}
               <div>
                 <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
-                  {t('signup.confirmPassword')}
+                  Confirm Password
                 </label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -241,7 +239,7 @@ const SignupModal: React.FC<SignupModalProps> = ({ isOpen, onClose, onSwitchToLo
                     className={`w-full pl-10 pr-12 py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors ${
                       errors.confirmPassword ? 'border-red-500' : 'border-gray-300'
                     }`}
-                    placeholder={t('signup.confirmPassword')}
+                    placeholder="Confirm Password"
                   />
                   <button
                     type="button"
@@ -265,23 +263,23 @@ const SignupModal: React.FC<SignupModalProps> = ({ isOpen, onClose, onSwitchToLo
                 {isSubmitting ? (
                   <div className="flex items-center justify-center">
                     <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                    {t('signup.submit')}...
+                    Sign Up...
                   </div>
                 ) : (
-                  t('signup.submit')
+                  "Sign Up"
                 )}
               </button>
 
               {/* Switch to Login */}
               <div className="text-center">
                 <p className="text-sm text-gray-600">
-                  {t('signup.alreadyHaveAccount')}{' '}
+                  Already have an account?{' '}
                   <button
                     type="button"
                     onClick={onSwitchToLogin}
                     className="text-orange-500 hover:text-orange-600 font-medium transition-colors"
                   >
-                    {t('signup.login')}
+                    Log in
                   </button>
                 </p>
               </div>
