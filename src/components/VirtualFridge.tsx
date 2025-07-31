@@ -893,16 +893,22 @@ const VirtualFridge: React.FC = () => {
                         <div>
                           <h3 className="text-2xl font-bold mb-6">{t('recipes.instructions')}</h3>
                           <div className="space-y-4">
-                            {selectedRecipe.instructions.map((instruction, index) => (
-                              <div key={index} className="flex space-x-4">
-                                <div className="flex-shrink-0 w-8 h-8 bg-orange-500 text-white rounded-full flex items-center justify-center font-bold text-sm">
-                                  {index + 1}
+                            {(() => {
+                              const { getInstructions } = useLanguage();
+                              const hindiInstructions = getInstructions(selectedRecipe.title);
+                              const instructionsToShow = hindiInstructions.length > 0 ? hindiInstructions : selectedRecipe.instructions;
+                              
+                              return instructionsToShow.map((instruction, index) => (
+                                <div key={index} className="flex space-x-4">
+                                  <div className="flex-shrink-0 w-8 h-8 bg-orange-500 text-white rounded-full flex items-center justify-center font-bold text-sm">
+                                    {index + 1}
+                                  </div>
+                                  <div className="flex-1">
+                                    <p className="text-gray-700 leading-relaxed">{instruction}</p>
+                                  </div>
                                 </div>
-                                <div className="flex-1">
-                                  <p className="text-gray-700 leading-relaxed">{instruction}</p>
-                                </div>
-                              </div>
-                            ))}
+                              ));
+                            })()}
                           </div>
                         </div>
                 </div>
