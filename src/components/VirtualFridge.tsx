@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Clock, Star, Leaf, Flame, Heart, Share2, BookOpen, Users, X, ArrowLeft } from 'lucide-react';
-import { useLanguage } from '../contexts/LanguageContext';
 
 // Import all recipe images
 import palakPaneerImg from '../palak paneer.557Z.png';
@@ -45,7 +44,6 @@ const VirtualFridge: React.FC = () => {
   const [favorites, setFavorites] = useState<Set<number>>(new Set());
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { t } = useLanguage();
 
   const ingredients = [
     'Paneer', 'Tomato', 'Onion', 'Potato', 'Yogurt', 
@@ -622,15 +620,15 @@ const VirtualFridge: React.FC = () => {
           {/* Section Title */}
           <div className="text-center mb-16">
             <h2 className="text-4xl lg:text-5xl font-bold mb-4">
-              {t('recipes.title')}{' '}
-              <span style={{ color: 'var(--brand-accent-orange)' }}>{t('recipes.titleHighlight')}</span>
+              What Could You{' '}
+              <span style={{ color: 'var(--brand-accent-orange)' }}>Create Tonight?</span>
             </h2>
           </div>
 
           {/* Interactive Ingredient Selector */}
           <div className="mb-12">
             <h3 className="text-2xl font-semibold mb-6 text-center">
-              {t('recipes.ingredientsPrompt')}
+              Click the ingredients you have at home:
             </h3>
             
             {/* Selected Ingredients Display */}
@@ -684,7 +682,7 @@ const VirtualFridge: React.FC = () => {
                     }}
                   >
                     {Icon && <Icon className="w-4 h-4" />}
-                    <span>{t(`recipes.filters.${filter.id.toLowerCase()}`)}</span>
+                    <span>{filter.label}</span>
                   </button>
                 );
               })}
@@ -766,7 +764,7 @@ const VirtualFridge: React.FC = () => {
                   >
                     <span className="flex items-center space-x-2">
                       <BookOpen className="w-4 h-4" />
-                      <span>{t('recipes.viewFull')}</span>
+                      <span>View Full Recipe</span>
                     </span>
                   </button>
                 </div>
@@ -803,7 +801,7 @@ const VirtualFridge: React.FC = () => {
                         className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors"
                       >
                         <ArrowLeft className="w-5 h-5" />
-                        <span className="font-medium">{t('recipes.backToRecipes')}</span>
+                        <span className="font-medium">Back to Recipes</span>
                       </button>
                 <button
                   onClick={closeRecipeModal}
@@ -842,7 +840,7 @@ const VirtualFridge: React.FC = () => {
                                                       <div className="flex items-center space-x-2">
                                 <Clock className="w-5 h-5 text-gray-500" />
                                 <div>
-                                  <p className="text-sm text-gray-500">{t('recipes.cookTime')}</p>
+                                  <p className="text-sm text-gray-500">Cook Time</p>
                                   <p className="font-semibold">{selectedRecipe.time}</p>
                                 </div>
                               </div>
@@ -850,15 +848,15 @@ const VirtualFridge: React.FC = () => {
                               <div className="flex items-center space-x-2">
                                 <Users className="w-5 h-5 text-gray-500" />
                                 <div>
-                                  <p className="text-sm text-gray-500">{t('recipes.servings')}</p>
-                                  <p className="font-semibold">{selectedRecipe.servings} {t('recipes.people')}</p>
+                                  <p className="text-sm text-gray-500">Servings</p>
+                                  <p className="font-semibold">{selectedRecipe.servings} people</p>
                                 </div>
                               </div>
                               
                               <div className="flex items-center space-x-2">
                                 <Star className="w-5 h-5 text-gray-500" />
                                 <div>
-                                  <p className="text-sm text-gray-500">{t('recipes.difficulty')}</p>
+                                  <p className="text-sm text-gray-500">Difficulty</p>
                                   <p className="font-semibold">{selectedRecipe.difficulty}</p>
                                 </div>
                               </div>
@@ -866,7 +864,7 @@ const VirtualFridge: React.FC = () => {
                               <div className="flex items-center space-x-2">
                                 <span className="w-5 h-5 text-gray-500">🌍</span>
                                 <div>
-                                  <p className="text-sm text-gray-500">{t('recipes.cuisine')}</p>
+                                  <p className="text-sm text-gray-500">Cuisine</p>
                                   <p className="font-semibold">{selectedRecipe.cuisine}</p>
                                 </div>
                               </div>
@@ -874,7 +872,7 @@ const VirtualFridge: React.FC = () => {
 
                                                   {/* Ingredients */}
                             <div>
-                              <h3 className="text-lg font-semibold mb-3">{t('recipes.ingredients')}</h3>
+                              <h3 className="text-lg font-semibold mb-3">Ingredients</h3>
                               <div className="flex flex-wrap gap-2">
                                 {selectedRecipe.ingredients.map((ingredient, index) => (
                                   <span 
@@ -891,24 +889,18 @@ const VirtualFridge: React.FC = () => {
 
                                           {/* Instructions */}
                         <div>
-                          <h3 className="text-2xl font-bold mb-6">{t('recipes.instructions')}</h3>
+                          <h3 className="text-2xl font-bold mb-6">Instructions</h3>
                           <div className="space-y-4">
-                            {(() => {
-                              const { getInstructions } = useLanguage();
-                              const hindiInstructions = getInstructions(selectedRecipe.title);
-                              const instructionsToShow = hindiInstructions.length > 0 ? hindiInstructions : selectedRecipe.instructions;
-                              
-                              return instructionsToShow.map((instruction, index) => (
-                                <div key={index} className="flex space-x-4">
-                                  <div className="flex-shrink-0 w-8 h-8 bg-orange-500 text-white rounded-full flex items-center justify-center font-bold text-sm">
-                                    {index + 1}
-                                  </div>
-                                  <div className="flex-1">
-                                    <p className="text-gray-700 leading-relaxed">{instruction}</p>
-                                  </div>
+                            {selectedRecipe.instructions.map((instruction, index) => (
+                              <div key={index} className="flex space-x-4">
+                                <div className="flex-shrink-0 w-8 h-8 bg-orange-500 text-white rounded-full flex items-center justify-center font-bold text-sm">
+                                  {index + 1}
                                 </div>
-                              ));
-                            })()}
+                                <div className="flex-1">
+                                  <p className="text-gray-700 leading-relaxed">{instruction}</p>
+                                </div>
+                              </div>
+                            ))}
                           </div>
                         </div>
                 </div>

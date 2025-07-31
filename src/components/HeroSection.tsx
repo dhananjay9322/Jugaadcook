@@ -1,10 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { ArrowRight } from 'lucide-react';
-import { useLanguage } from '../contexts/LanguageContext';
 
 const HeroSection: React.FC = () => {
   const [isLoaded, setIsLoaded] = useState(false);
-  const { t } = useLanguage();
 
   useEffect(() => {
     setIsLoaded(true);
@@ -32,19 +30,19 @@ const HeroSection: React.FC = () => {
                 className="inline-flex items-center text-sm font-semibold tracking-wide uppercase px-4 py-2 rounded-full"
                 style={{ color: 'var(--brand-accent-orange)', backgroundColor: 'rgba(249, 168, 38, 0.1)' }}
               >
-                👋 {t('hero.tagline')}
+                👋 NO MORE "KHANE MEIN KYA HAI?"
               </span>
             </div>
 
             {/* Main Headline */}
             <h1 className="text-4xl lg:text-6xl font-bold mb-6 leading-tight animate-slide-up">
-              {t('hero.title')}{' '}
-              <span style={{ color: 'var(--brand-accent-orange)' }}>{t('hero.titleHighlight')}</span>{t('hero.titleEnd')}
+              Your fridge is full of{' '}
+              <span style={{ color: 'var(--brand-accent-orange)' }}>meals</span>, not just ingredients.
             </h1>
 
             {/* Sub-headline */}
             <p className="text-xl lg:text-2xl mb-8 leading-relaxed animate-slide-up" style={{ color: 'var(--text-muted)', animationDelay: '0.2s' }}>
-              {t('hero.subtitle')}
+              JugaadCook turns forgotten vegetables and leftover ingredients into delicious meals. End the daily dinner stress, stop wasting food, and rediscover the joy of cooking.
             </p>
 
             {/* Primary CTA */}
@@ -53,13 +51,13 @@ const HeroSection: React.FC = () => {
               className="inline-flex items-center px-8 py-4 text-lg font-semibold text-white rounded-full hover-lift animate-scale-in mb-8"
               style={{ backgroundColor: 'var(--brand-accent-green)', animationDelay: '0.4s' }}
             >
-              {t('hero.cta')}
+              Unlock My Kitchen's Potential
               <ArrowRight className="ml-2 w-5 h-5" />
             </button>
 
             {/* Social Proof */}
             <p className="text-sm animate-fade-in" style={{ color: 'var(--text-muted)', animationDelay: '0.6s' }}>
-              {t('hero.socialProof')}
+              Join 50,000+ smart cooks turning waste into taste across India
             </p>
           </div>
 
@@ -163,7 +161,7 @@ const HeroSection: React.FC = () => {
                       color: 'white'
                     }}
                   >
-                    {t('hero.jugaadMagic')}
+                    ✨ Jugaad Magic ✨
                   </div>
                 </div>
 
