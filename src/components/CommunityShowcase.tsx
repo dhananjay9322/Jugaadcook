@@ -25,7 +25,7 @@ const CommunityShowcase: React.FC = () => {
       id: 3,
       user: '@SnehaK',
       location: 'Delhi',
-      image: 'https://images.pexels.com/photos/12737652/pexels-photo-12737652.jpeg?auto=compress&cs=tinysrgb&w=400',
+      image: 'https://images.pexels.com/photos/4871119/pexels-photo-4871119.jpeg?auto=compress&cs=tinysrgb&w=400',
       quote: "My husband asked where I ordered this from 😂 It was just dal and rice!",
       likes: 156,
       comments: 31
