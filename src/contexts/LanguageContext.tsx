@@ -23,7 +23,7 @@ const translations = {
     'nav.user': 'User',
 
     // Hero Section
-    'hero.tagline': 'NO MORE "KHANE MEIN KYA HAI?"',
+    'hero.tagline': '🍽JugaadCook. Soch bandh, cook shuru.',
     'hero.title': 'Your fridge is full of',
     'hero.titleHighlight': 'meals',
     'hero.titleEnd': ', not just ingredients.',
@@ -86,7 +86,7 @@ const translations = {
     'nav.user': 'उपयोगकर्ता',
 
     // Hero Section
-    'hero.tagline': 'अब नहीं "खाने में क्या है?"',
+    'hero.tagline': '🍽जुगाड़कुक. सोच बंद, कुक शुरू।',
     'hero.title': 'आपकी फ्रिज में सिर्फ सामग्री नहीं,',
     'hero.titleHighlight': 'भोजन',
     'hero.titleEnd': ' भरा है।',
