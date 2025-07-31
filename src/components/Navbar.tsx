@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ChefHat, Lightbulb, Menu, X, User, LogOut } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-import { useLanguage } from '../contexts/LanguageContext';
 import LoginModal from './LoginModal';
 import SignupModal from './SignupModal';
 
@@ -11,7 +10,6 @@ const Navbar: React.FC = () => {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isSignupModalOpen, setIsSignupModalOpen] = useState(false);
   const { currentUser, logout } = useAuth();
-  const { language, setLanguage, t } = useLanguage();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -20,10 +18,6 @@ const Navbar: React.FC = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-
-  const toggleLanguage = () => {
-    setLanguage(language === 'EN' ? 'HI' : 'EN');
-  };
 
   const handleLogout = async () => {
     try {
@@ -54,24 +48,14 @@ const Navbar: React.FC = () => {
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
             <a href="#how-it-works" className="text-gray-700 hover:text-orange-500 transition-colors duration-200">
-              {t('nav.howItWorks')}
+              How It Works
             </a>
             <a href="#mission" className="text-gray-700 hover:text-orange-500 transition-colors duration-200">
-              {t('nav.ourMission')}
+              Our Mission
             </a>
             <a href="#blog" className="text-gray-700 hover:text-orange-500 transition-colors duration-200">
-              {t('nav.blog')}
+              Blog
             </a>
-            
-            {/* Language Toggle */}
-            <button 
-              onClick={toggleLanguage}
-              className="flex items-center space-x-2 px-3 py-1 rounded-full border border-gray-300 hover:border-orange-500 transition-colors duration-200"
-            >
-              <span className={language === 'EN' ? 'font-semibold' : 'text-gray-500'}>EN</span>
-              <span className="text-gray-300">|</span>
-              <span className={language === 'HI' ? 'font-semibold' : 'text-gray-500'}>हि</span>
-            </button>
 
             {/* Login/User Button */}
             {currentUser ? (
@@ -87,7 +71,7 @@ const Navbar: React.FC = () => {
                   className="px-4 py-2 text-gray-600 hover:text-orange-500 transition-colors duration-200 flex items-center space-x-1"
                 >
                   <LogOut size={16} />
-                  <span>{t('nav.logout')}</span>
+                  <span>Logout</span>
                 </button>
               </div>
             ) : (
@@ -96,13 +80,13 @@ const Navbar: React.FC = () => {
                   onClick={() => setIsLoginModalOpen(true)}
                   className="px-4 py-2 border-2 border-gray-300 rounded-full hover:border-orange-500 hover:text-orange-500 transition-all duration-200 hover-lift"
                 >
-                  {t('nav.login')}
+                  Login
                 </button>
                 <button 
                   onClick={() => setIsSignupModalOpen(true)}
                   className="px-6 py-2 bg-orange-500 text-white rounded-full hover:bg-orange-600 transition-all duration-200 hover-lift"
                 >
-                  {t('nav.signup')}
+                  Sign Up
                 </button>
               </div>
             )}
@@ -122,24 +106,16 @@ const Navbar: React.FC = () => {
           <div className="md:hidden bg-white border-t border-gray-200 animate-slide-up">
             <div className="px-4 py-6 space-y-4">
               <a href="#how-it-works" className="block text-gray-700 hover:text-orange-500 transition-colors duration-200">
-                {t('nav.howItWorks')}
+                How It Works
               </a>
               <a href="#mission" className="block text-gray-700 hover:text-orange-500 transition-colors duration-200">
-                {t('nav.ourMission')}
+                Our Mission
               </a>
               <a href="#blog" className="block text-gray-700 hover:text-orange-500 transition-colors duration-200">
-                {t('nav.blog')}
+                Blog
               </a>
               
               <div className="flex items-center justify-between pt-4 border-t border-gray-200">
-                <button 
-                  onClick={toggleLanguage}
-                  className="flex items-center space-x-2 px-3 py-1 rounded-full border border-gray-300"
-                >
-                  <span className={language === 'EN' ? 'font-semibold' : 'text-gray-500'}>EN</span>
-                  <span className="text-gray-300">|</span>
-                  <span className={language === 'HI' ? 'font-semibold' : 'text-gray-500'}>हि</span>
-                </button>
                 
                 {currentUser ? (
                   <div className="flex items-center space-x-2">
@@ -163,13 +139,13 @@ const Navbar: React.FC = () => {
                       onClick={() => setIsLoginModalOpen(true)}
                       className="px-3 py-1 border-2 border-gray-300 rounded-full text-sm"
                     >
-                      {t('nav.login')}
+                      Login
                     </button>
                     <button 
                       onClick={() => setIsSignupModalOpen(true)}
                       className="px-3 py-1 bg-orange-500 text-white rounded-full text-sm"
                     >
-                      {t('nav.signup')}
+                      Sign Up
                     </button>
                   </div>
                 )}

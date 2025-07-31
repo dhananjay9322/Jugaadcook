@@ -1,9 +1,7 @@
 import React from 'react';
 import { Heart, MessageCircle, Share2 } from 'lucide-react';
-import { useLanguage } from '../contexts/LanguageContext';
 
 const CommunityShowcase: React.FC = () => {
-  const { t } = useLanguage();
   const userPosts = [
     {
       id: 1,
@@ -49,8 +47,8 @@ const CommunityShowcase: React.FC = () => {
         {/* Section Title */}
         <div className="text-center mb-16">
           <h2 className="text-4xl lg:text-5xl font-bold mb-4">
-            {t('community.title')}{' '}
-            <span style={{ color: 'var(--brand-accent-orange)' }}>{t('community.titleHighlight')}</span>
+            Community{' '}
+            <span style={{ color: 'var(--brand-accent-orange)' }}>Highlights</span>
           </h2>
         </div>
 
@@ -104,11 +102,11 @@ const CommunityShowcase: React.FC = () => {
           style={{ backgroundColor: 'var(--background-light-green)' }}
         >
           <h3 className="text-3xl lg:text-4xl font-bold mb-6">
-            <span style={{ color: 'var(--brand-accent-green)' }}>{t('community.mission.title')}</span>{' '}
-            <span style={{ color: 'var(--brand-accent-orange)' }}>{t('community.mission.subtitle')}</span>
+            <span style={{ color: 'var(--brand-accent-green)' }}>Community</span>{' '}
+            <span style={{ color: 'var(--brand-accent-orange)' }}>Mission</span>
           </h3>
           <p className="text-lg lg:text-xl leading-relaxed max-w-4xl mx-auto" style={{ color: 'var(--text-muted)' }}>
-            {t('community.mission.description')}
+            Every meal you cook with us is a small victory for your wallet and a big one for the planet. We're on a mission to cut down the 40% of food wasted in India, one delicious meal at a time.
           </p>
         </div>
       </div>
