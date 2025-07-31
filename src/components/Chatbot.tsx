@@ -108,6 +108,42 @@ const Chatbot: React.FC = () => {
       difficulty: 'Easy',
       ingredients: ['Yogurt', 'Onion', 'Ginger', 'Garlic', 'Turmeric', 'Cumin'],
       dietary: ['Veg']
+    },
+    {
+      id: 9,
+      title: 'Tomato Rice',
+      image: 'https://images.pexels.com/photos/12737652/pexels-photo-12737652.jpeg?auto=compress&cs=tinysrgb&w=400',
+      time: '25 Mins',
+      difficulty: 'Easy',
+      ingredients: ['Rice', 'Tomato', 'Onion', 'Garlic', 'Ginger', 'Turmeric'],
+      dietary: ['Veg', 'Spicy']
+    },
+    {
+      id: 10,
+      title: 'Spinach Rice',
+      image: 'https://images.pexels.com/photos/12737652/pexels-photo-12737652.jpeg?auto=compress&cs=tinysrgb&w=400',
+      time: '30 Mins',
+      difficulty: 'Easy',
+      ingredients: ['Rice', 'Spinach', 'Onion', 'Garlic', 'Ginger', 'Turmeric'],
+      dietary: ['Veg', 'Jain']
+    },
+    {
+      id: 11,
+      title: 'Paneer Fried Rice',
+      image: 'https://images.pexels.com/photos/12737652/pexels-photo-12737652.jpeg?auto=compress&cs=tinysrgb&w=400',
+      time: '20 Mins',
+      difficulty: 'Easy',
+      ingredients: ['Rice', 'Paneer', 'Onion', 'Carrot', 'Peas', 'Soy Sauce'],
+      dietary: ['Veg']
+    },
+    {
+      id: 12,
+      title: 'Garlic Rice',
+      image: 'https://images.pexels.com/photos/12737652/pexels-photo-12737652.jpeg?auto=compress&cs=tinysrgb&w=400',
+      time: '15 Mins',
+      difficulty: 'Easy',
+      ingredients: ['Rice', 'Garlic', 'Onion', 'Ghee', 'Cumin'],
+      dietary: ['Veg', 'Jain']
     }
   ];
 
@@ -147,9 +183,9 @@ const Chatbot: React.FC = () => {
         )
       );
       
-      // Recipe matches if at least 60% of its ingredients are available
+      // Recipe matches if at least 50% of its ingredients are available
       const matchPercentage = matchingIngredients.length / recipe.ingredients.length;
-      return matchPercentage >= 0.6;
+      return matchPercentage >= 0.5;
     }).sort((a, b) => {
       // Sort by match percentage (higher first)
       const aMatchPercentage = a.ingredients.filter(ingredient =>
@@ -165,6 +201,56 @@ const Chatbot: React.FC = () => {
       ).length / b.ingredients.length;
       
       return bMatchPercentage - aMatchPercentage;
+    });
+  };
+
+  // Get recipe description based on title
+  const getRecipeDescription = (title: string): string => {
+    const descriptions: { [key: string]: string } = {
+      'Palak Paneer': '🧀🌿 Creamy spinach curry with paneer cubes.',
+      'Dal Tadka': '🌶 A comfort meal made with lentils, garlic, and basic spices.',
+      'Tomato Rice': '🍅🍚 A quick and spicy South Indian rice dish.',
+      'Paneer Butter Masala': '🧀🍅 Rich and creamy paneer in tomato gravy.',
+      'Aloo Gobi': '🥔🥦 Simple potato and cauliflower curry.',
+      'Jeera Rice': '🍚🌿 Fragrant rice with cumin seeds.',
+      'Spinach Rice': '🌿🍚 Healthy rice cooked with spinach.',
+      'Paneer Fried Rice': '🧀🍚 Indo-Chinese style fried rice with paneer.',
+      'Garlic Rice': '🧄🍚 Aromatic rice with garlic and spices.',
+      'Stuffed Bell Pepper': '🫑🧀 Bell peppers stuffed with rice and vegetables.',
+      'Quick Tomato Pasta': '🍝🍅 Simple pasta with tomato sauce.',
+      'Yogurt Curry': '🥛🌿 Tangy curry made with yogurt and spices.'
+    };
+    
+    return descriptions[title] || `${title} - A delicious recipe you can make with your ingredients.`;
+  };
+
+  // Check for dietary preferences
+  const checkDietaryPreferences = (text: string): string[] => {
+    const preferences: string[] = [];
+    const lowerText = text.toLowerCase();
+    
+    if (lowerText.includes('veg') || lowerText.includes('vegetarian')) {
+      preferences.push('Veg');
+    }
+    if (lowerText.includes('jain')) {
+      preferences.push('Jain');
+    }
+    if (lowerText.includes('spicy') || lowerText.includes('hot')) {
+      preferences.push('Spicy');
+    }
+    if (lowerText.includes('quick') || lowerText.includes('fast') || lowerText.includes('easy')) {
+      preferences.push('Quick');
+    }
+    
+    return preferences;
+  };
+
+  // Filter recipes by dietary preferences
+  const filterByDietaryPreferences = (recipes: Recipe[], preferences: string[]): Recipe[] => {
+    if (preferences.length === 0) return recipes;
+    
+    return recipes.filter(recipe => {
+      return preferences.some(pref => recipe.dietary.includes(pref));
     });
   };
 
@@ -203,16 +289,39 @@ const Chatbot: React.FC = () => {
     try {
       // Extract ingredients from user input
       const foundIngredients = extractIngredients(inputValue);
+      const dietaryPreferences = checkDietaryPreferences(inputValue);
       
       if (foundIngredients.length > 0) {
         // Find recipes based on ingredients
-        const matchingRecipes = findRecipesByIngredients(foundIngredients);
+        let matchingRecipes = findRecipesByIngredients(foundIngredients);
+        
+        // Filter by dietary preferences if specified
+        if (dietaryPreferences.length > 0) {
+          matchingRecipes = filterByDietaryPreferences(matchingRecipes, dietaryPreferences);
+        }
         
         if (matchingRecipes.length > 0) {
           const ingredientsList = foundIngredients.join(', ');
           const recipeCount = matchingRecipes.length;
           
-          const responseText = `Great! I found ${recipeCount} recipe${recipeCount > 1 ? 's' : ''} you can make with ${ingredientsList}:`;
+          let responseText = `Great! Based on what you have, here are some recipes you can try:`;
+          
+          // Add dietary preference info if specified
+          if (dietaryPreferences.length > 0) {
+            responseText += `\n\nI've filtered for ${dietaryPreferences.join(', ')} recipes as requested.`;
+          }
+          
+          // Add recipe descriptions
+          const recipeDescriptions = matchingRecipes.slice(0, 5).map(recipe => 
+            `${recipe.title} ${getRecipeDescription(recipe.title)}`
+          ).join('\n\n');
+          
+          responseText += `\n\n${recipeDescriptions}`;
+          
+          // Add follow-up question if few ingredients
+          if (foundIngredients.length <= 3) {
+            responseText += `\n\n💡 Tip: Try adding more ingredients for better recipe matches!`;
+          }
           
           const botMessage: Message = {
             id: (Date.now() + 1).toString(),
@@ -223,10 +332,45 @@ const Chatbot: React.FC = () => {
           };
           
           setMessages(prev => [...prev, botMessage]);
+          
+          // Add follow-up question for better matching
+          if (matchingRecipes.length <= 2) {
+            setTimeout(() => {
+              const followUpMessage: Message = {
+                id: (Date.now() + 2).toString(),
+                text: "Do you have any other ingredients? Or would you prefer:\n• Vegetarian or non-vegetarian?\n• Spicy or mild?\n• Quick recipes (under 20 mins)?",
+                isUser: false,
+                timestamp: new Date()
+              };
+              setMessages(prev => [...prev, followUpMessage]);
+            }, 1000);
+          }
         } else {
+          let responseText = `I found ${foundIngredients.join(', ')} in your ingredients, but I don't have exact matches.`;
+          
+          // Check for near matches
+          const nearMatches = recipes.filter(recipe => {
+            const matchingIngredients = recipe.ingredients.filter(ingredient =>
+              foundIngredients.some(available => 
+                available.toLowerCase() === ingredient.toLowerCase()
+              )
+            );
+            return matchingIngredients.length >= 2; // At least 2 ingredients match
+          }).slice(0, 3);
+          
+          if (nearMatches.length > 0) {
+            responseText += `\n\nHere are some recipes you could try with a few additional ingredients:`;
+            const nearMatchDescriptions = nearMatches.map(recipe => 
+              `${recipe.title} ${getRecipeDescription(recipe.title)}`
+            ).join('\n\n');
+            responseText += `\n\n${nearMatchDescriptions}`;
+          }
+          
+          responseText += `\n\n💡 Try adding more ingredients or ask me for cooking tips!`;
+          
           const botMessage: Message = {
             id: (Date.now() + 1).toString(),
-            text: `I found ${foundIngredients.join(', ')} in your ingredients, but I don't have enough recipes that match these ingredients. Try adding more ingredients or ask me for cooking tips with what you have!`,
+            text: responseText,
             isUser: false,
             timestamp: new Date()
           };
