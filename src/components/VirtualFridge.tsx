@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { Clock, Star, Leaf, Flame, Heart, Share2, BookOpen, Users, X, ArrowLeft } from 'lucide-react';
 
 // Import all recipe images
@@ -37,30 +37,39 @@ interface Recipe {
   cuisine: string;
 }
 
+// Static data and pure helpers defined outside the component to avoid recreation on every render
+const INGREDIENTS = [
+  'Paneer', 'Tomato', 'Onion', 'Potato', 'Yogurt', 
+  'Ginger', 'Garlic', 'Rice', 'Spinach', 
+  'Bell Pepper', 'Chicken', 'Cauliflower',
+  'Chickpeas', 'Lentils', 'Milk', 'Cream', 'Butter',
+  'Mango', 'Cashews', 'Gram Flour', 'Peas', 'Okra',
+  'Lemon', 'Peanuts', 'Curry Leaves', 'Sugar', 'Ghee',
+  'Spices', 'Mint', 'Tamarind'
+];
+
+const FILTERS = [
+  { id: 'All', label: 'All Recipes', icon: null },
+  { id: 'Veg', label: 'Veg Only', icon: Leaf },
+  { id: 'Spicy', label: 'Spicy', icon: Flame },
+  { id: 'Jain', label: 'Jain', icon: Star }
+];
+
+const getDifficultyColor = (difficulty: string) => {
+  switch (difficulty) {
+    case 'Easy': return 'text-green-600 bg-green-100';
+    case 'Medium': return 'text-yellow-600 bg-yellow-100';
+    case 'Hard': return 'text-red-600 bg-red-100';
+    default: return 'text-gray-600 bg-gray-100';
+  }
+};
+
 const VirtualFridge: React.FC = () => {
   const [selectedIngredients, setSelectedIngredients] = useState<string[]>([]);
   const [selectedFilter, setSelectedFilter] = useState<string>('All');
-  const [displayedRecipes, setDisplayedRecipes] = useState<Recipe[]>([]);
   const [favorites, setFavorites] = useState<Set<number>>(new Set());
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const ingredients = [
-    'Paneer', 'Tomato', 'Onion', 'Potato', 'Yogurt', 
-    'Ginger', 'Garlic', 'Rice', 'Spinach', 
-    'Bell Pepper', 'Chicken', 'Cauliflower',
-    'Chickpeas', 'Lentils', 'Milk', 'Cream', 'Butter',
-    'Mango', 'Cashews', 'Gram Flour', 'Peas', 'Okra',
-    'Lemon', 'Peanuts', 'Curry Leaves', 'Sugar', 'Ghee',
-    'Spices', 'Mint', 'Tamarind'
-  ];
-
-  const filters = [
-    { id: 'All', label: 'All Recipes', icon: null },
-    { id: 'Veg', label: 'Veg Only', icon: Leaf },
-    { id: 'Spicy', label: 'Spicy', icon: Flame },
-    { id: 'Jain', label: 'Jain', icon: Star }
-  ];
 
   const recipes: Recipe[] = useMemo(() => [
     {
@@ -545,54 +554,48 @@ const VirtualFridge: React.FC = () => {
     }
   ], []);
 
-  const toggleIngredient = (ingredient: string) => {
+  const toggleIngredient = useCallback((ingredient: string) => {
     setSelectedIngredients(prev => 
       prev.includes(ingredient) 
         ? prev.filter(i => i !== ingredient)
         : [...prev, ingredient]
     );
-  };
+  }, []);
 
-  const toggleFavorite = (recipeId: number) => {
-    const newFavorites = new Set(favorites);
-    if (newFavorites.has(recipeId)) {
-      newFavorites.delete(recipeId);
-    } else {
-      newFavorites.add(recipeId);
-    }
-    setFavorites(newFavorites);
-  };
+  const toggleFavorite = useCallback((recipeId: number) => {
+    setFavorites(prev => {
+      const newFavorites = new Set(prev);
+      if (newFavorites.has(recipeId)) {
+        newFavorites.delete(recipeId);
+      } else {
+        newFavorites.add(recipeId);
+      }
+      return newFavorites;
+    });
+  }, []);
 
-  const openRecipeModal = (recipe: Recipe) => {
+  const openRecipeModal = useCallback((recipe: Recipe) => {
     setSelectedRecipe(recipe);
     setIsModalOpen(true);
     // Prevent body scroll when modal is open
     document.body.style.overflow = 'hidden';
-  };
+  }, []);
 
-  const closeRecipeModal = () => {
+  const closeRecipeModal = useCallback(() => {
     setIsModalOpen(false);
     setSelectedRecipe(null);
     // Restore body scroll
     document.body.style.overflow = 'unset';
-  };
+  }, []);
 
-  const getDifficultyColor = (difficulty: string) => {
-    switch (difficulty) {
-      case 'Easy': return 'text-green-600 bg-green-100';
-      case 'Medium': return 'text-yellow-600 bg-yellow-100';
-      case 'Hard': return 'text-red-600 bg-red-100';
-      default: return 'text-gray-600 bg-gray-100';
-    }
-  };
-
-  useEffect(() => {
+  // Derive displayed recipes via useMemo to avoid an extra render cycle from useEffect+setState
+  const displayedRecipes = useMemo(() => {
     let filtered = recipes;
 
     // Filter by selected ingredients - show recipes that contain ALL selected ingredients
     if (selectedIngredients.length > 0) {
-      filtered = filtered.filter(recipe => 
-        selectedIngredients.every(ingredient => 
+      filtered = filtered.filter(recipe =>
+        selectedIngredients.every(ingredient =>
           recipe.ingredients.includes(ingredient)
         )
       );
@@ -600,18 +603,18 @@ const VirtualFridge: React.FC = () => {
 
     // Filter by dietary preferences
     if (selectedFilter !== 'All') {
-      filtered = filtered.filter(recipe => 
+      filtered = filtered.filter(recipe =>
         recipe.dietary.includes(selectedFilter)
       );
     }
 
-    setDisplayedRecipes(filtered);
+    return filtered;
   }, [selectedIngredients, selectedFilter, recipes]);
 
-  const clearFilters = () => {
+  const clearFilters = useCallback(() => {
     setSelectedIngredients([]);
     setSelectedFilter('All');
-  };
+  }, []);
 
   return (
     <>
@@ -649,7 +652,7 @@ const VirtualFridge: React.FC = () => {
             )}
             
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-8">
-              {ingredients.map((ingredient) => (
+              {INGREDIENTS.map((ingredient) => (
                 <button
                   key={ingredient}
                   onClick={() => toggleIngredient(ingredient)}
@@ -666,7 +669,7 @@ const VirtualFridge: React.FC = () => {
 
             {/* Dietary Preference Filters */}
             <div className="flex flex-wrap justify-center gap-4">
-              {filters.map((filter) => {
+              {FILTERS.map((filter) => {
                 const Icon = filter.icon;
                 return (
                   <button
@@ -874,9 +877,9 @@ const VirtualFridge: React.FC = () => {
                             <div>
                               <h3 className="text-lg font-semibold mb-3">Ingredients</h3>
                               <div className="flex flex-wrap gap-2">
-                                {selectedRecipe.ingredients.map((ingredient, index) => (
+                                {selectedRecipe.ingredients.map((ingredient) => (
                                   <span 
-                                    key={index}
+                                    key={ingredient}
                                     className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm"
                                   >
                                     {ingredient}
