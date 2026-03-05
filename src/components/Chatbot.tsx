@@ -24,30 +24,22 @@ interface Recipe {
   cuisine?: string;
 }
 
-const Chatbot: React.FC = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: '1',
-      text: "Hi! I'm your JugaadCook assistant! 🍳 I can help you find recipes based on the ingredients you have at home. Just tell me what's in your fridge or pantry, and I'll suggest delicious meals you can make!",
-      isUser: false,
-      timestamp: new Date()
-    }
-  ]);
-  const [inputValue, setInputValue] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+// Initialize Gemini AI outside the component so the client is created only once
+if (!import.meta.env.VITE_GEMINI_API_KEY) {
+  console.warn('VITE_GEMINI_API_KEY is not set. AI-powered features will not work.');
+}
+const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY ?? '');
+const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' });
 
-  // Recipe database with full instructions
-  const recipes: Recipe[] = [
-    {
-      id: 1,
-      title: 'Palak Paneer',
-      image: 'https://images.pexels.com/photos/4871119/pexels-photo-4871119.jpeg?auto=compress&cs=tinysrgb&w=400',
-      time: '30 Mins',
-      difficulty: 'Medium',
-      ingredients: ['Paneer', 'Spinach', 'Onion', 'Ginger', 'Garlic', 'Tomato', 'Cream'],
+// Recipe database defined at module level to avoid recreation on every render
+const recipes: Recipe[] = [
+  {
+    id: 1,
+    title: 'Palak Paneer',
+    image: 'https://images.pexels.com/photos/4871119/pexels-photo-4871119.jpeg?auto=compress&cs=tinysrgb&w=400',
+    time: '30 Mins',
+    difficulty: 'Medium',
+    ingredients: ['Paneer', 'Spinach', 'Onion', 'Ginger', 'Garlic', 'Tomato', 'Cream'],
       dietary: ['Veg'],
       shortDescription: 'A classic North Indian dish where soft paneer cubes are simmered in a creamy, mildly spiced spinach gravy.',
       instructions: [
@@ -344,11 +336,230 @@ const Chatbot: React.FC = () => {
       servings: 6,
       cuisine: 'Hyderabadi'
     }
-  ];
+];
 
-  // Initialize Gemini AI
-  const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY || 'AIzaSyDeLpITbB9zaPCvo8f6A_R6J208k6ukuSs');
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' });
+// Pre-compute unique ingredients once from the recipe database for efficient text search
+const UNIQUE_INGREDIENTS = [...new Set(recipes.flatMap(recipe => recipe.ingredients))];
+
+// Common recipe name variations and spelling variants, defined at module level
+const RECIPE_VARIATIONS: { [key: string]: string } = {
+  'paneer masala': 'Paneer Butter Masala',
+  'rajma chawal': 'Chana Masala (Spiced Chickpea Curry)',
+  'chicken biryani': 'Chicken Biryani',
+  'palak paneer': 'Palak Paneer',
+  'butter chicken': 'Butter Chicken (Murgh Makhani)',
+  'chana masala': 'Chana Masala (Spiced Chickpea Curry)',
+  'aloo gobi': 'Aloo Gobi',
+  'dal tadka': 'Dal Tadka',
+  'jeera rice': 'Jeera Rice',
+  'tomato rice': 'Tomato Rice',
+  'spinach rice': 'Spinach Rice',
+  'paneer fried rice': 'Paneer Fried Rice',
+  'garlic rice': 'Garlic Rice',
+  // Spelling variants for khichdi
+  'khichadi': 'Khichdi',
+  'kichadi': 'Khichdi',
+  'khichari': 'Khichdi',
+  'kichari': 'Khichdi',
+  'khichdi': 'Khichdi',
+  'kichdi': 'Khichdi'
+};
+
+// Pure helper functions defined at module level — they only reference module-level constants
+// and have no dependency on component state, so they don't need useCallback.
+
+// Detect direct recipe requests
+function detectRecipeRequest(text: string): string | null {
+  // Common recipe request patterns
+  const recipePatterns = [
+    /how to make (.+)/i,
+    /give me recipe for (.+)/i,
+    /tell me steps for (.+)/i,
+    /recipe for (.+)/i,
+    /how to cook (.+)/i,
+    /steps for (.+)/i,
+    /make (.+)/i,
+    /cook (.+)/i
+  ];
+  
+  for (const pattern of recipePatterns) {
+    const match = text.match(pattern);
+    if (match && match[1]) {
+      return match[1].trim();
+    }
+  }
+  
+  return null;
+}
+
+// Find recipe by name (fuzzy matching)
+function findRecipeByName(recipeName: string): Recipe | null {
+  const lowerRecipeName = recipeName.toLowerCase();
+  
+  // First try exact match
+  const exactMatch = recipes.find(recipe => 
+    recipe.title.toLowerCase() === lowerRecipeName
+  );
+  if (exactMatch) return exactMatch;
+  
+  // Try partial matches
+  const partialMatches = recipes.filter(recipe => 
+    recipe.title.toLowerCase().includes(lowerRecipeName) ||
+    lowerRecipeName.includes(recipe.title.toLowerCase())
+  );
+  
+  if (partialMatches.length > 0) {
+    // Return the best match (shortest title or most similar)
+    return partialMatches.sort((a, b) => {
+      const aScore = Math.abs(a.title.length - recipeName.length);
+      const bScore = Math.abs(b.title.length - recipeName.length);
+      return aScore - bScore;
+    })[0];
+  }
+  
+  // Try matching common variations and spelling variants using module-level constant
+  const variationMatch = RECIPE_VARIATIONS[lowerRecipeName];
+  if (variationMatch) {
+    return recipes.find(recipe => recipe.title === variationMatch) || null;
+  }
+  
+  return null;
+}
+
+// Format full recipe response
+function formatFullRecipe(recipe: Recipe): string {
+  let response = `🍽️ **${recipe.title}**\n\n`;
+  
+  if (recipe.shortDescription) {
+    response += `${recipe.shortDescription}\n\n`;
+  }
+  
+  response += `**📝 Ingredients:**\n`;
+  recipe.ingredients.forEach(ingredient => {
+    response += `- ${ingredient}\n`;
+  });
+  
+  if (recipe.instructions && recipe.instructions.length > 0) {
+    response += `\n**👨‍🍳 Instructions:**\n`;
+    recipe.instructions.forEach((instruction, index) => {
+      response += `${index + 1}. ${instruction}\n`;
+    });
+  }
+  
+  response += `\n💡 *Tip: If you're missing an ingredient, I can help you substitute!*`;
+  
+  return response;
+}
+
+// Extract ingredients from user input using pre-computed UNIQUE_INGREDIENTS
+function extractIngredients(text: string): string[] {
+  const lowerText = text.toLowerCase();
+  return UNIQUE_INGREDIENTS.filter(ingredient =>
+    lowerText.includes(ingredient.toLowerCase())
+  );
+}
+
+// Find recipes based on available ingredients.
+// Match percentage is computed once per recipe to avoid redundant filtering during sort.
+function findRecipesByIngredients(availableIngredients: string[]): Recipe[] {
+  if (availableIngredients.length === 0) return [];
+
+  const recipesWithScore = recipes.map(recipe => {
+    const matchCount = recipe.ingredients.filter(ingredient =>
+      availableIngredients.some(available =>
+        available.toLowerCase() === ingredient.toLowerCase()
+      )
+    ).length;
+    return { recipe, matchPercentage: matchCount / recipe.ingredients.length };
+  });
+
+  return recipesWithScore
+    .filter(({ matchPercentage }) => matchPercentage >= 0.5)
+    .sort((a, b) => b.matchPercentage - a.matchPercentage)
+    .map(({ recipe }) => recipe);
+}
+
+// Get recipe description based on title
+const RECIPE_DESCRIPTIONS: { [key: string]: string } = {
+  'Palak Paneer': '🧀🌿 Creamy spinach curry with paneer cubes.',
+  'Dal Tadka': '🌶 A comfort meal made with lentils, garlic, and basic spices.',
+  'Tomato Rice': '🍅🍚 A quick and spicy South Indian rice dish.',
+  'Paneer Butter Masala': '🧀🍅 Rich and creamy paneer in tomato gravy.',
+  'Aloo Gobi': '🥔🥦 Simple potato and cauliflower curry.',
+  'Jeera Rice': '🍚🌿 Fragrant rice with cumin seeds.',
+  'Spinach Rice': '🌿🍚 Healthy rice cooked with spinach.',
+  'Paneer Fried Rice': '🧀🍚 Indo-Chinese style fried rice with paneer.',
+  'Garlic Rice': '🧄🍚 Aromatic rice with garlic and spices.',
+  'Stuffed Bell Pepper': '🫑🧀 Bell peppers stuffed with rice and vegetables.',
+  'Quick Tomato Pasta': '🍝🍅 Simple pasta with tomato sauce.',
+  'Yogurt Curry': '🥛🌿 Tangy curry made with yogurt and spices.'
+};
+
+function getRecipeDescription(title: string): string {
+  return RECIPE_DESCRIPTIONS[title] || `${title} - A delicious recipe you can make with your ingredients.`;
+}
+
+// Check for dietary preferences
+function checkDietaryPreferences(text: string): string[] {
+  const preferences: string[] = [];
+  const lowerText = text.toLowerCase();
+  
+  if (lowerText.includes('veg') || lowerText.includes('vegetarian')) {
+    preferences.push('Veg');
+  }
+  if (lowerText.includes('jain')) {
+    preferences.push('Jain');
+  }
+  if (lowerText.includes('spicy') || lowerText.includes('hot')) {
+    preferences.push('Spicy');
+  }
+  if (lowerText.includes('quick') || lowerText.includes('fast') || lowerText.includes('easy')) {
+    preferences.push('Quick');
+  }
+  
+  return preferences;
+}
+
+// Filter recipes by dietary preferences
+function filterByDietaryPreferences(recipeList: Recipe[], preferences: string[]): Recipe[] {
+  if (preferences.length === 0) return recipeList;
+  return recipeList.filter(recipe =>
+    preferences.some(pref => recipe.dietary.includes(pref))
+  );
+}
+
+const FOOD_KEYWORDS = [
+  'food', 'cook', 'recipe', 'ingredient', 'meal', 'dish', 'cuisine', 'kitchen',
+  'nutrition', 'diet', 'healthy', 'calories', 'protein', 'vitamin', 'mineral',
+  'breakfast', 'lunch', 'dinner', 'snack', 'dessert', 'beverage', 'drink',
+  'vegetable', 'fruit', 'meat', 'fish', 'poultry', 'dairy', 'grain', 'spice',
+  'herb', 'sauce', 'dressing', 'baking', 'grilling', 'frying', 'boiling',
+  'restaurant', 'chef', 'cooking', 'preparation', 'storage', 'preservation',
+  'organic', 'vegan', 'vegetarian', 'gluten', 'allergy', 'intolerance',
+  'paneer', 'tomato', 'onion', 'potato', 'yogurt', 'ginger', 'garlic', 'rice',
+  'dal', 'spinach', 'bell pepper', 'cilantro', 'cauliflower', 'turmeric',
+  'cumin', 'butter', 'cream', 'cheese', 'pasta', 'olive oil', 'basil'
+];
+
+function isFoodRelated(text: string): boolean {
+  const lowerText = text.toLowerCase();
+  return FOOD_KEYWORDS.some(keyword => lowerText.includes(keyword));
+}
+
+const Chatbot: React.FC = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      id: '1',
+      text: "Hi! I'm your JugaadCook assistant! 🍳 I can help you find recipes based on the ingredients you have at home. Just tell me what's in your fridge or pantry, and I'll suggest delicious meals you can make!",
+      isUser: false,
+      timestamp: new Date()
+    }
+  ]);
+  const [inputValue, setInputValue] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -357,227 +568,6 @@ const Chatbot: React.FC = () => {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
-
-  // Detect direct recipe requests
-  const detectRecipeRequest = (text: string): string | null => {
-    const lowerText = text.toLowerCase();
-    
-    // Common recipe request patterns
-    const recipePatterns = [
-      /how to make (.+)/i,
-      /give me recipe for (.+)/i,
-      /tell me steps for (.+)/i,
-      /recipe for (.+)/i,
-      /how to cook (.+)/i,
-      /steps for (.+)/i,
-      /make (.+)/i,
-      /cook (.+)/i
-    ];
-    
-    for (const pattern of recipePatterns) {
-      const match = text.match(pattern);
-      if (match && match[1]) {
-        return match[1].trim();
-      }
-    }
-    
-    return null;
-  };
-
-  // Find recipe by name (fuzzy matching)
-  const findRecipeByName = (recipeName: string): Recipe | null => {
-    const lowerRecipeName = recipeName.toLowerCase();
-    
-    // First try exact match
-    const exactMatch = recipes.find(recipe => 
-      recipe.title.toLowerCase() === lowerRecipeName
-    );
-    if (exactMatch) return exactMatch;
-    
-    // Try partial matches
-    const partialMatches = recipes.filter(recipe => 
-      recipe.title.toLowerCase().includes(lowerRecipeName) ||
-      lowerRecipeName.includes(recipe.title.toLowerCase())
-    );
-    
-    if (partialMatches.length > 0) {
-      // Return the best match (shortest title or most similar)
-      return partialMatches.sort((a, b) => {
-        const aScore = Math.abs(a.title.length - recipeName.length);
-        const bScore = Math.abs(b.title.length - recipeName.length);
-        return aScore - bScore;
-      })[0];
-    }
-    
-    // Try matching common variations and spelling variants
-    const variations: { [key: string]: string } = {
-      'paneer masala': 'Paneer Butter Masala',
-      'rajma chawal': 'Chana Masala (Spiced Chickpea Curry)',
-      'chicken biryani': 'Chicken Biryani',
-      'palak paneer': 'Palak Paneer',
-      'butter chicken': 'Butter Chicken (Murgh Makhani)',
-      'chana masala': 'Chana Masala (Spiced Chickpea Curry)',
-      'aloo gobi': 'Aloo Gobi',
-      'dal tadka': 'Dal Tadka',
-      'jeera rice': 'Jeera Rice',
-      'tomato rice': 'Tomato Rice',
-      'spinach rice': 'Spinach Rice',
-      'paneer fried rice': 'Paneer Fried Rice',
-      'garlic rice': 'Garlic Rice',
-      // Add spelling variants for khichdi
-      'khichadi': 'Khichdi',
-      'kichadi': 'Khichdi',
-      'khichari': 'Khichdi',
-      'kichari': 'Khichdi',
-      'khichdi': 'Khichdi',
-      'kichdi': 'Khichdi'
-    };
-    
-    const variationMatch = variations[lowerRecipeName];
-    if (variationMatch) {
-      return recipes.find(recipe => recipe.title === variationMatch) || null;
-    }
-    
-    return null;
-  };
-
-  // Format full recipe response
-  const formatFullRecipe = (recipe: Recipe): string => {
-    let response = `🍽️ **${recipe.title}**\n\n`;
-    
-    if (recipe.shortDescription) {
-      response += `${recipe.shortDescription}\n\n`;
-    }
-    
-    response += `**📝 Ingredients:**\n`;
-    recipe.ingredients.forEach(ingredient => {
-      response += `- ${ingredient}\n`;
-    });
-    
-    if (recipe.instructions && recipe.instructions.length > 0) {
-      response += `\n**👨‍🍳 Instructions:**\n`;
-      recipe.instructions.forEach((instruction, index) => {
-        response += `${index + 1}. ${instruction}\n`;
-      });
-    }
-    
-    response += `\n💡 *Tip: If you're missing an ingredient, I can help you substitute!*`;
-    
-    return response;
-  };
-
-  // Extract ingredients from user input
-  const extractIngredients = (text: string): string[] => {
-    const allIngredients = recipes.flatMap(recipe => recipe.ingredients);
-    const uniqueIngredients = [...new Set(allIngredients)];
-    
-    const lowerText = text.toLowerCase();
-    const foundIngredients = uniqueIngredients.filter(ingredient => 
-      lowerText.includes(ingredient.toLowerCase())
-    );
-    
-    return foundIngredients;
-  };
-
-  // Find recipes based on available ingredients
-  const findRecipesByIngredients = (availableIngredients: string[]): Recipe[] => {
-    if (availableIngredients.length === 0) return [];
-    
-    return recipes.filter(recipe => {
-      const matchingIngredients = recipe.ingredients.filter(ingredient =>
-        availableIngredients.some(available => 
-          available.toLowerCase() === ingredient.toLowerCase()
-        )
-      );
-      
-      // Recipe matches if at least 50% of its ingredients are available
-      const matchPercentage = matchingIngredients.length / recipe.ingredients.length;
-      return matchPercentage >= 0.5;
-    }).sort((a, b) => {
-      // Sort by match percentage (higher first)
-      const aMatchPercentage = a.ingredients.filter(ingredient =>
-        availableIngredients.some(available => 
-          available.toLowerCase() === ingredient.toLowerCase()
-        )
-      ).length / a.ingredients.length;
-      
-      const bMatchPercentage = b.ingredients.filter(ingredient =>
-        availableIngredients.some(available => 
-          available.toLowerCase() === ingredient.toLowerCase()
-        )
-      ).length / b.ingredients.length;
-      
-      return bMatchPercentage - aMatchPercentage;
-    });
-  };
-
-  // Get recipe description based on title
-  const getRecipeDescription = (title: string): string => {
-    const descriptions: { [key: string]: string } = {
-      'Palak Paneer': '🧀🌿 Creamy spinach curry with paneer cubes.',
-      'Dal Tadka': '🌶 A comfort meal made with lentils, garlic, and basic spices.',
-      'Tomato Rice': '🍅🍚 A quick and spicy South Indian rice dish.',
-      'Paneer Butter Masala': '🧀🍅 Rich and creamy paneer in tomato gravy.',
-      'Aloo Gobi': '🥔🥦 Simple potato and cauliflower curry.',
-      'Jeera Rice': '🍚🌿 Fragrant rice with cumin seeds.',
-      'Spinach Rice': '🌿🍚 Healthy rice cooked with spinach.',
-      'Paneer Fried Rice': '🧀🍚 Indo-Chinese style fried rice with paneer.',
-      'Garlic Rice': '🧄🍚 Aromatic rice with garlic and spices.',
-      'Stuffed Bell Pepper': '🫑🧀 Bell peppers stuffed with rice and vegetables.',
-      'Quick Tomato Pasta': '🍝🍅 Simple pasta with tomato sauce.',
-      'Yogurt Curry': '🥛🌿 Tangy curry made with yogurt and spices.'
-    };
-    
-    return descriptions[title] || `${title} - A delicious recipe you can make with your ingredients.`;
-  };
-
-  // Check for dietary preferences
-  const checkDietaryPreferences = (text: string): string[] => {
-    const preferences: string[] = [];
-    const lowerText = text.toLowerCase();
-    
-    if (lowerText.includes('veg') || lowerText.includes('vegetarian')) {
-      preferences.push('Veg');
-    }
-    if (lowerText.includes('jain')) {
-      preferences.push('Jain');
-    }
-    if (lowerText.includes('spicy') || lowerText.includes('hot')) {
-      preferences.push('Spicy');
-    }
-    if (lowerText.includes('quick') || lowerText.includes('fast') || lowerText.includes('easy')) {
-      preferences.push('Quick');
-    }
-    
-    return preferences;
-  };
-
-  // Filter recipes by dietary preferences
-  const filterByDietaryPreferences = (recipes: Recipe[], preferences: string[]): Recipe[] => {
-    if (preferences.length === 0) return recipes;
-    
-    return recipes.filter(recipe => {
-      return preferences.some(pref => recipe.dietary.includes(pref));
-    });
-  };
-
-  const isFoodRelated = (text: string): boolean => {
-    const foodKeywords = [
-      'food', 'cook', 'recipe', 'ingredient', 'meal', 'dish', 'cuisine', 'kitchen',
-      'nutrition', 'diet', 'healthy', 'calories', 'protein', 'vitamin', 'mineral',
-      'breakfast', 'lunch', 'dinner', 'snack', 'dessert', 'beverage', 'drink',
-      'vegetable', 'fruit', 'meat', 'fish', 'poultry', 'dairy', 'grain', 'spice',
-      'herb', 'sauce', 'dressing', 'baking', 'grilling', 'frying', 'boiling',
-      'restaurant', 'chef', 'cooking', 'preparation', 'storage', 'preservation',
-      'organic', 'vegan', 'vegetarian', 'gluten', 'allergy', 'intolerance',
-      'paneer', 'tomato', 'onion', 'potato', 'yogurt', 'ginger', 'garlic', 'rice',
-      'dal', 'spinach', 'bell pepper', 'cilantro', 'cauliflower', 'turmeric',
-      'cumin', 'butter', 'cream', 'cheese', 'pasta', 'olive oil', 'basil'
-    ];
-    
-    const lowerText = text.toLowerCase();
-    return foodKeywords.some(keyword => lowerText.includes(keyword));
-  };
 
   const handleSendMessage = async () => {
     if (!inputValue.trim() || isLoading) return;
